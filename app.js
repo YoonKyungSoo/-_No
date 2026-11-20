@@ -69,7 +69,9 @@ document.querySelectorAll('.wrong').forEach((b) =>
 );
 
 // ===== 1. 인트로 → 사무실 =====
+let startedAt = Date.now();
 $('startBtn').addEventListener('click', () => {
+  startedAt = Date.now();
   showScene('office');
   say('일단 자리에 앉아볼까?');
 });
@@ -172,25 +174,72 @@ async function runLoading() {
     [92, '최종 결재자 검토 중...'],
     [99, '최종 결재자 검토 중......'],
   ];
-  for (const [pct, msg] of steps) {
+  const setBar = (pct, msg) => {
     $('barFill').style.width = pct + '%';
     $('loadPct').textContent = pct + '%';
     $('loadMsg').textContent = msg;
+  };
+
+  for (const [pct, msg] of steps) {
+    setBar(pct, msg);
     await wait(pct === 99 ? 2200 : 1100);
+  }
+
+  // 99% → 12% 추락
+  setBar(12, '하암.. 수락을 해줘말어..');
+  say('...?? 12%???');
+  await wait(3200);
+
+  for (const [pct, msg] of [[40, '흠...'], [75, '그래 뭐... 해주지 뭐'], [100, '결재 완료!']]) {
+    setBar(pct, msg);
+    await wait(1100);
   }
   showResult();
 }
 
-function showResult() {
+async function showResult() {
   const date = $('date').value;
+  const stamp = $('stamp');
+  const sheet = document.querySelector('.sheet');
+
   $('docNo').textContent = '문서번호 HR-' + Date.now().toString().slice(-6);
   $('rWho').textContent = $('who').value.trim() || '(이름 없음)';
   $('rDate').textContent = date ? date.replaceAll('-', '.') : '미입력';
   $('rWhy').textContent = $('why').value;
+
+  // 가짜 승인
+  $('rReasonLabel').textContent = '결재 의견';
+  $('rReason').textContent = '즐거운 휴가 되세요 🎉';
+  $('rReason').className = 'green';
+  stamp.className = 'stamp approve on';
+  stamp.textContent = '승인';
   $('result').hidden = false;
-  say('반려!');
-  $('stamp').classList.add('on');
-  setTimeout(() => document.querySelector('.sheet').classList.add('shake'), 550);
+  say('승인...?!?! 진짜로?!');
+
+  await wait(550);                 // 도장 쾅
+  stamp.className = 'stamp approve done';
+  await wait(1000);                // 1초 뒤 지직
+
+  stamp.className = 'stamp approve glitch';
+  await wait(350);
+  stamp.className = 'stamp glitch';
+  stamp.textContent = '반려';
+  $('rReasonLabel').textContent = '반려 사유';
+  $('rReason').textContent = '되겠냐? 그냥 시러';
+  $('rReason').className = 'red';
+  await wait(350);
+
+  stamp.className = 'stamp done';
+  sheet.classList.add('shake');
+  say('아 잘못 찍음ㅋ');
+
+  // 시간낭비 시간
+  const sec = Math.floor((Date.now() - startedAt) / 1000);
+  const mm = String(Math.floor(sec / 60)).padStart(2, '0');
+  const ss = String(sec % 60).padStart(2, '0');
+  $('wastedTime').textContent = `${mm}분 ${ss}초`;
+  await wait(700);
+  $('wasted').classList.add('show');
 }
 
 $('retryBtn').addEventListener('click', () => location.reload());
