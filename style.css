@@ -297,6 +297,9 @@ button { font: inherit; cursor: pointer; }
   border-radius: 6px;
   background: #fff;
 }
+.warn { color: var(--red); font-size: 12px; font-weight: 800; min-height: 0; }
+.form input.shake { animation: shake .4s; border-color: var(--red); }
+
 .submit {
   right: 18px; bottom: 18px;
   padding: 10px 24px;

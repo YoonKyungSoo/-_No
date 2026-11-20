@@ -142,6 +142,24 @@ $('leaveMenu').addEventListener('click', () => {
   say('날짜 쓰고 신청 누르자!');
 });
 
+// 신청자에 결재자 이름 입력 금지
+const FORBIDDEN = ['윤경수', '경수'];
+const FORBIDDEN_MSG = '함부로 올릴 이름이 아니다. 정신차리도록';
+// 한글 입력(IME) 조합 중에도, 조합이 끝난 뒤에도 검사
+['input', 'compositionend', 'change'].forEach((ev) => $('who').addEventListener(ev, checkWho));
+function checkWho() {
+  const who = $('who');
+  const v = who.value.replace(/\s+/g, '');
+  if (!FORBIDDEN.some((k) => v.includes(k))) return false;
+  setTimeout(() => { who.value = ''; }, 0);
+  $('whoWarn').textContent = FORBIDDEN_MSG;
+  say(FORBIDDEN_MSG);
+  who.classList.remove('shake');
+  void who.offsetWidth;
+  who.classList.add('shake');
+  return true;
+}
+
 // 기본 날짜: 다음 금요일
 (function setDefaultDate() {
   const d = new Date();
