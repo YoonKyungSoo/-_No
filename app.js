@@ -216,20 +216,61 @@ async function showResult() {
   $('result').hidden = false;
   say('승인...?!?! 진짜로?!');
 
-  await wait(550);                 // 도장 쾅
+  await wait(550);                 // 승인 도장 쾅
   stamp.className = 'stamp approve done';
-  await wait(1000);                // 1초 뒤 지직
+  await wait(400);
 
-  stamp.className = 'stamp approve glitch';
-  await wait(350);
-  stamp.className = 'stamp glitch';
-  stamp.textContent = '반려';
+  // 손이 옆에서 들어옴
+  const hand = $('hand');
+  const keep = (ms, easing = 'ease-out') => ({ duration: ms, easing, fill: 'forwards' });
+  hand.textContent = '✋';
+  say('...응?');
+  await hand.animate([
+    { opacity: 1, transform: 'translateX(280px) rotate(-20deg)' },
+    { opacity: 1, transform: 'translateX(0) rotate(-20deg)' },
+  ], keep(350)).finished;
+  await wait(150);
+
+  // 승인 도장을 쓱 치워버림
+  hand.animate([
+    { opacity: 1, transform: 'translateX(0) rotate(-20deg)' },
+    { opacity: 1, transform: 'translateX(-460px) rotate(-20deg)' },
+  ], keep(450, 'ease-in'));
+  await stamp.animate([
+    { opacity: .9, transform: 'rotate(-18deg)' },
+    { opacity: .9, transform: 'translateX(-460px) rotate(-80deg)' },
+  ], keep(450, 'ease-in')).finished;
+
   $('rReasonLabel').textContent = '반려 사유';
   $('rReason').textContent = '되겠냐? 그냥 시러';
   $('rReason').className = 'red';
-  await wait(350);
+  stamp.getAnimations().forEach((a) => a.cancel());
+  hand.getAnimations().forEach((a) => a.cancel());
+  stamp.className = 'stamp';
+  stamp.textContent = '반려';
+  hand.textContent = '✊';
+  say('어? 어??');
+  await wait(300);
 
+  // 주먹이 위에서 내려와 반려 도장 쾅
+  await hand.animate([
+    { opacity: 1, transform: 'translateY(-300px)' },
+    { opacity: 1, transform: 'translateY(-120px)' },
+  ], keep(300)).finished;
+  hand.animate([
+    { opacity: 1, transform: 'translateY(-120px)' },
+    { opacity: 1, transform: 'translateY(-70px)', offset: .2 },
+    { opacity: 1, transform: 'translateY(-70px)', offset: .45 },
+    { opacity: 0, transform: 'translateY(-320px)' },
+  ], keep(800, 'ease-in-out'));
+  await wait(160);
+  await stamp.animate([
+    { opacity: 0, transform: 'rotate(-18deg) scale(1.6)' },
+    { opacity: .9, transform: 'rotate(-18deg) scale(1)' },
+  ], keep(120)).finished;
+  stamp.getAnimations().forEach((a) => a.cancel());
   stamp.className = 'stamp done';
+
   sheet.classList.add('shake');
   say('아 잘못 찍음ㅋ');
 
